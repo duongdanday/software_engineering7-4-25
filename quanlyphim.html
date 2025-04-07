@@ -1,0 +1,242 @@
+You said:
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Cinema Management</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+       body {
+      display: flex;
+      margin: 0;
+      padding: 0;
+      background-color: #ffebee; /* đỏ nhạt */
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: #b71c1c;
+      color: white;
+      padding: 20px;
+      position: fixed;
+      height: 100vh;
+      top: 0;
+      left: 0;
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      display: block;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .sidebar a:hover, .sidebar a.active {
+      background: #ff9800;
+      font-weight: bold;
+    }
+
+    .content {
+      margin-left: 260px;
+      padding: 20px;
+      width: calc(100% - 260px);
+    }
+
+    .chart-container {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #d32f2f;
+      box-shadow: 0px 0px 15px rgba(211, 47, 47, 0.2);
+      margin-top: 20px;
+    }
+
+    h2 {
+      color: #b71c1c;
+    }
+
+    .form-control:focus {
+      border-color: #d32f2f;
+      box-shadow: 0 0 0 0.15rem rgba(211, 47, 47, 0.25);
+    }
+
+    .btn-danger {
+      background-color: #d32f2f;
+      border-color: #c62828;
+    }
+
+    .btn-danger:hover {
+      background-color: #b71c1c;
+      border-color: #b71c1c;
+    }
+
+    .table thead {
+      background-color: #b71c1c;
+      color: white;
+    }
+
+    .btn-warning {
+      background-color: #ff9800;
+      border-color: #fb8c00;
+    }
+
+    .btn-warning:hover {
+      background-color: #fb8c00;
+    }
+  </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h5 class="mt-3">RẠP CHIẾU PHIM</h5>
+        <a href="tongquanadmin.html" onclick="showSection('overview')">Tổng quan</a>
+        <a href="quanlynguoidung.html" onclick="showSection('users')">Quản lý người dùng</a>
+        <a href="quanlyve.html" onclick="showSection('tickets')">Quản lý vé</a>
+        <a href="quanlylichchieuphim.html" onclick="showSection('schedule')">Quản lý lịch chiếu</a>
+        <a href="quanlynhanvien.html" onclick="showSection('employees')">Quản lý nhân viên</a>
+        <a href="thongke.html" onclick="showSection('stats')">Thống kê</a>
+        <a href="#" id="manageMovies">Quản lý phim</a>
+        <a href="quanlyphongchieu_banquanly.html" onclick="showSection('rooms')">Quản lý phòng chiếu</a>
+        <a href="thongtincanhan_banquanly.html" onclick="showSection('rooms')">Thông tin cá nhân</a>
+      </div>
+
+  <div class="content">
+    <div class="header"><h2>Quản lý phim</h2></div>
+
+    <div class="chart-container" id="chartContainer">
+      <!-- Nội dung động -->
+    </div>
+  </div>
+
+  <script>
+    const movies = [];
+
+    const renderMovieManager = () => {
+      const chartContainer = document.getElementById('chartContainer');
+      chartContainer.innerHTML = `
+        <h4>Quản lý phim</h4>
+        <div class="mb-3">
+          <input type="text" id="movieName" class="form-control mb-2" placeholder="Tên phim">
+          <input type="text" id="movieId" class="form-control mb-2" placeholder="Mã phim">
+          <input type="text" id="movieGenre" class="form-control mb-2" placeholder="Thể loại">
+          <input type="number" id="movieDuration" class="form-control mb-2" placeholder="Thời lượng (phút)">
+        </div>
+        <button class="btn btn-success mb-2" id="addMovie">Thêm phim</button>
+        <button class="btn btn-danger mb-2" id="deleteMovie">Xóa phim</button>
+        <button class="btn btn-warning mb-2" id="updateMovie">Cập nhật phim</button>
+        <div id="movieActionsResult" class="mt-3"></div>
+        <div id="movieList" class="mt-3">
+          <h5>Danh sách phim</h5>
+          <div id="movieListContainer"></div>
+        </div>
+      `;
+
+      const updateMovieList = () => {
+        const container = document.getElementById('movieListContainer');
+        if (movies.length === 0) {
+          container.innerHTML = `<p>Chưa có phim nào.</p>`;
+          return;
+        }
+
+        container.innerHTML = `
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Tên phim</th>
+                <th>Mã phim</th>
+                <th>Thể loại</th>
+                <th>Thời lượng (phút)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${movies.map(movie => `
+                <tr>
+                  <td>${movie.name}</td>
+                  <td>${movie.id}</td>
+                  <td>${movie.genre}</td>
+                  <td>${movie.duration}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      };
+
+      const getInputValues = () => ({
+        name: document.getElementById('movieName').value.trim(),
+        id: document.getElementById('movieId').value.trim(),
+        genre: document.getElementById('movieGenre').value.trim(),
+        duration: document.getElementById('movieDuration').value.trim()
+      });
+
+      document.getElementById('addMovie').addEventListener('click', () => {
+        const { name, id, genre, duration } = getInputValues();
+        const result = document.getElementById('movieActionsResult');
+
+        if (!name || !id || !genre || !duration) {
+          result.innerHTML = `<div class="alert alert-danger">Vui lòng nhập đầy đủ thông tin.</div>`;
+          return;
+        }
+
+        if (movies.some(m => m.id === id)) {
+          result.innerHTML = `<div class="alert alert-warning">Mã phim đã tồn tại.</div>`;
+          return;
+        }
+
+        movies.push({ name, id, genre, duration });
+        result.innerHTML = `<div class="alert alert-success">Thêm phim thành công.</div>`;
+        updateMovieList();
+      });
+
+      document.getElementById('deleteMovie').addEventListener('click', () => {
+        const { id } = getInputValues();
+        const index = movies.findIndex(m => m.id === id);
+        const result = document.getElementById('movieActionsResult');
+
+        if (index === -1) {
+          result.innerHTML = `<div class="alert alert-danger">Không tìm thấy phim để xóa.</div>`;
+          return;
+        }
+
+        movies.splice(index, 1);
+        result.innerHTML = `<div class="alert alert-success">Đã xóa phim.</div>`;
+        updateMovieList();
+      });
+
+      document.getElementById('updateMovie').addEventListener('click', () => {
+        const { name, id, genre, duration } = getInputValues();
+        const movie = movies.find(m => m.id === id);
+        const result = document.getElementById('movieActionsResult');
+
+        if (!movie) {
+          result.innerHTML = `<div class="alert alert-danger">Không tìm thấy mã phim để cập nhật.</div>`;
+          return;
+        }
+
+        movie.name = name || movie.name;
+        movie.genre = genre || movie.genre;
+        movie.duration = duration || movie.duration;
+        result.innerHTML = `<div class="alert alert-success">Cập nhật phim thành công.</div>`;
+        updateMovieList();
+      });
+
+      updateMovieList();
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.sidebar a').forEach(link => link.style.display = 'block');
+      document.getElementById('manageMovies').addEventListener('click', function (e) {
+        e.preventDefault();
+        renderMovieManager();
+      });
+
+      // Gọi mặc định khi trang load
+      document.getElementById('manageMovies').click();
+    });
+  </script>
+</body>
+</html>

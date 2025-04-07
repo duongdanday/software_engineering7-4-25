@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #fbe9e7;
+        }
+        .sidebar {
+            width: 250px;
+            background: #b71c1c;
+            color: white;
+            padding: 15px;
+            position: fixed;
+            height: 100%;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background: #ff9800;
+            font-weight: bold;
+        }
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+            width: 100%;
+        }
+        .header {
+            background: #d32f2f;
+            padding: 15px;
+            text-align: right;
+            font-weight: bold;
+            color: white;
+        }
+        .personal-info {
+            display: block; /* Hiển thị thông tin cá nhân mặc định */
+            margin-left: 50px; /* Lùi sang bên phải */
+        }
+        .personal-info input {
+            width: 80%; /* Làm các box ngắn lại */
+            padding: 8px; /* Giảm padding */
+            margin: 8px 0; /* Giảm khoảng cách giữa các box */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .personal-info .button-group {
+            display: flex; /* Đặt các nút cạnh nhau */
+            justify-content: flex-start; /* Căn trái */
+            gap: 10px; /* Khoảng cách giữa các nút */
+            margin-top: 10px;
+        }
+        .personal-info button {
+            padding: 8px 16px; /* Kích thước nút */
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .personal-info button:hover {
+            background: #b71c1c;
+        }
+        .personal-info .logout-button {
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%; /* Đặt nút chiếm toàn bộ chiều rộng */
+        }
+        .personal-info .logout-button:hover {
+            background: #b71c1c;
+        }
+        .modal {
+            display: none; /* Ẩn modal mặc định */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Nền mờ */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+            width: 300px;
+            text-align: center;
+        }
+        .modal-content input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .modal-content button {
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .modal-content .confirm {
+            background: #4caf50;
+            color: white;
+        }
+        .modal-content .confirm:hover {
+            background: #388e3c;
+        }
+        .modal-content .cancel {
+            background: #f44336;
+            color: white;
+        }
+        .modal-content .cancel:hover {
+            background: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h5 class="mt-3">RẠP CHIẾU PHIM</h5>
+        <a href="tongquanadminphongchieu.html">Tổng quan</a> 
+        <a href="#">Thông tin cá nhân</a>
+        <a href="quanlyphongchieu.html">Quản lý phòng chiếu</a> <!-- Chuyển hướng trực tiếp -->
+        
+    </div>
+    <div class="content">
+        <div class="header">Nguyễn Văn B | Nhân viên quản lý phòng chiếu</div>
+        <div class="personal-info" id="personal-info">
+            <h3>Thông tin cá nhân</h3>
+            <input type="text" id="name" placeholder="Tên" value="Nguyễn Văn B">
+            <input type="email" id="email" placeholder="Email" value="nguyenvanb@example.com">
+            <input type="text" id="phone" placeholder="Số điện thoại" value="0987654321">
+            <div class="button-group">
+                <button onclick="showChangePasswordModal()">Đổi mật khẩu</button>
+                <button onclick="showUpdateInfoModal()">Cập nhật thông tin</button>
+                <button onclick="redirectToOverview()">Đóng</button> <!-- Chuyển hướng sang file trangchukhach -->
+            </div>
+            <button class="logout-button" onclick="showLogoutModal()">Đăng xuất</button>
+        </div>
+    </div>
+
+    <!-- Modal Đổi mật khẩu -->
+    <div class="modal" id="change-password-modal">
+        <div class="modal-content">
+            <h4>Đổi mật khẩu</h4>
+            <input type="password" id="current-password" placeholder="Mật khẩu cũ">
+            <input type="password" id="new-password" placeholder="Mật khẩu mới">
+            <input type="password" id="confirm-new-password" placeholder="Xác nhận mật khẩu mới">
+            <button class="confirm" onclick="changePassword()">Lưu</button>
+            <button class="cancel" onclick="closeChangePasswordModal()">Hủy</button>
+        </div>
+    </div>
+
+    <!-- Modal Cập nhật thông tin -->
+    <div class="modal" id="update-info-modal">
+        <div class="modal-content">
+            <h4>Xác nhận cập nhật thông tin?</h4>
+            <button class="confirm" onclick="confirmUpdate()">Lưu</button>
+            <button class="cancel" onclick="closeUpdateInfoModal()">Hủy</button>
+        </div>
+    </div>
+
+    <script>
+        const oldPassword = "Admin123@"; // Mật khẩu cũ giả định
+    
+        function showChangePasswordModal() {
+            document.getElementById("change-password-modal").style.display = "flex";
+        }
+    
+        function closeChangePasswordModal() {
+            document.getElementById("change-password-modal").style.display = "none";
+        }
+    
+        function changePassword() {
+            const currentPassword = document.getElementById("current-password").value;
+            const newPassword = document.getElementById("new-password").value;
+            const confirmNewPassword = document.getElementById("confirm-new-password").value;
+    
+            if (!currentPassword || !newPassword || !confirmNewPassword) {
+                alert("Vui lòng nhập đầy đủ thông tin!");
+                return;
+            }
+    
+            if (currentPassword !== oldPassword) {
+                alert("Mật khẩu cũ không đúng!");
+                return;
+            }
+    
+            const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[a-zA-Z]).{8,}$/;
+            if (!passwordRegex.test(newPassword)) {
+                alert("Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm ký tự in hoa và ký tự đặc biệt!");
+                return;
+            }
+    
+            if (newPassword !== confirmNewPassword) {
+                alert("Mật khẩu mới và xác nhận mật khẩu không khớp!");
+                return;
+            }
+    
+            alert("Mật khẩu đã được thay đổi thành công!");
+            closeChangePasswordModal();
+        }
+    
+        function showUpdateInfoModal() {
+            document.getElementById("update-info-modal").style.display = "flex";
+        }
+    
+        function closeUpdateInfoModal() {
+            document.getElementById("update-info-modal").style.display = "none";
+        }
+    
+        function confirmUpdate() {
+            alert("Thông tin cá nhân đã được cập nhật thành công!");
+            closeUpdateInfoModal();
+        }
+    
+        function showLogoutModal() {
+            alert("Bạn đã đăng xuất!");
+            window.location.href = "trangchu_chuadangnhap.html"; // Chuyển hướng đến file trangchua.html
+        }
+    
+        function redirectToOverview() {
+            window.location.href = "tongquanadminphongchieu.html"; // Chuyển hướng sang file trangchukhach
+        }
+    </script>
+</body>
+</html>

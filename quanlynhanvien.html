@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Quản lý nhân viên</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <style>
+      body {
+        display: flex;
+        margin: 0;
+        padding: 0;
+        background-color: #ffebee; /* đỏ nhạt */
+        font-family: 'Segoe UI', sans-serif;
+      }
+  
+      .sidebar {
+        width: 250px;
+        background: #b71c1c;
+        color: white;
+        padding: 20px;
+        position: fixed;
+        height: 100vh;
+        top: 0;
+        left: 0;
+      }
+  
+      .sidebar a {
+        color: white;
+        text-decoration: none;
+        display: block;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+  
+      .sidebar a:hover, .sidebar a.active {
+        background: #ff9800;
+        font-weight: bold;
+      }
+  
+      .content {
+        margin-left: 280px; /* Adjusted to move content further right */
+        padding: 20px;
+        width: calc(100% - 280px); /* Adjusted to match new margin */
+      }
+  
+      .chart-container {
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        border: 2px solid #d32f2f;
+        box-shadow: 0px 0px 15px rgba(211, 47, 47, 0.2);
+        margin-top: 20px;
+      }
+  
+      h2 {
+        color: #b71c1c;
+      }
+  
+      .form-control:focus {
+        border-color: #d32f2f;
+        box-shadow: 0 0 0 0.15rem rgba(211, 47, 47, 0.25);
+      }
+  
+      .btn-danger {
+        background-color: #d32f2f;
+        border-color: #c62828;
+      }
+  
+      .btn-danger:hover {
+        background-color: #b71c1c;
+        border-color: #b71c1c;
+      }
+  
+      .table thead {
+        background-color: #b71c1c;
+        color: white;
+      }
+  
+      .btn-warning {
+        background-color: #ff9800;
+        border-color: #fb8c00;
+      }
+  
+      .btn-warning:hover {
+        background-color: #fb8c00;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Thanh điều hướng bên trái -->
+    <div class="sidebar">
+      <h5 class="mt-3">RẠP CHIẾU PHIM</h5>
+      <a href="tongquanadmin.html" onclick="showSection('overview')">Tổng quan</a>
+      <a href="quanlynguoidung.html" onclick="showSection('users')">Quản lý người dùng</a>
+      <a href="quanlyve.html" onclick="showSection('tickets')">Quản lý vé</a>
+      <a href="quanlylichchieuphim.html" onclick="showSection('schedule')">Quản lý lịch chiếu</a>
+      <a href="quanlynhanvien.html" onclick="showSection('employees')">Quản lý nhân viên</a>
+      <a href="thongke.html" onclick="showSection('stats')">Thống kê</a>
+      <a href="quanlyphim.html" onclick="showSection('movies')">Quản lý phim</a>
+      <a href="quanlyphongchieu_banquanly.html" onclick="showSection('rooms')">Quản lý phòng chiếu</a>
+      <a href="thongtincanhan_banquanly.html" onclick="showSection('rooms')">Thông tin cá nhân</a>
+    </div>
+
+    <div class="content">
+        <h2>Quản lý Nhân viên</h2>
+        <input type="text" id="nameInput" placeholder="Nhập tên nhân viên" class="form-control mb-2">
+        <input type="text" id="positionInput" placeholder="Nhập chức vụ" class="form-control mb-2">
+        <button class="btn btn-warning" onclick="confirmAddEmployee()">Thêm nhân viên</button>
+        <input type="text" id="searchInput" placeholder="Tìm kiếm theo tên" class="form-control mb-3" onkeyup="searchEmployee()">
+        
+        <table class="table table-bordered table-striped text-center">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên</th>
+                    <th>Chức vụ</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="employeeList"></tbody>
+        </table>
+    </div>
+
+    <script>
+        let employeeId = 1;
+
+        function confirmAddEmployee() {
+            let name = document.getElementById("nameInput").value.trim();
+            let position = document.getElementById("positionInput").value.trim();
+            if (!name || !position) {
+                alert("Vui lòng nhập đầy đủ thông tin nhân viên");
+                return;
+            }
+            let confirmation = confirm(`Xác nhận thêm nhân viên: \nTên: ${name}\nChức vụ: ${position}`);
+            if (confirmation) {
+                addEmployee(name, position);
+            }
+        }
+
+        function addEmployee(name, position) {
+            let table = document.getElementById("employeeList");
+            let row = table.insertRow();
+            row.innerHTML = `<td>${employeeId}</td>
+                             <td contenteditable="true">${name}</td>
+                             <td contenteditable="true">${position}</td>
+                             <td>
+                                 <button class="btn btn-sm btn-danger" onclick="confirmDeleteEmployee(this)">Xóa</button>
+                             </td>`;
+            employeeId++;
+            clearInputs();
+        }
+
+        function confirmDeleteEmployee(button) {
+            let confirmation = confirm("Bạn có chắc chắn muốn xóa nhân viên này?");
+            if (confirmation) {
+                let row = button.parentElement.parentElement;
+                row.remove();
+                alert("Xóa nhân viên thành công!");
+            }
+        }
+
+        function searchEmployee() {
+            let filter = document.getElementById("searchInput").value.toLowerCase();
+            let rows = document.querySelectorAll("#employeeList tr");
+            rows.forEach(row => {
+                let name = row.cells[1].innerText.toLowerCase();
+                row.style.display = name.includes(filter) ? "" : "none";
+            });
+        }
+
+        function clearInputs() {
+            document.getElementById("nameInput").value = "";
+            document.getElementById("positionInput").value = "";
+        }
+    </script>
+
+</body>
+</html>

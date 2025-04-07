@@ -1,0 +1,8 @@
+Tên đăng nhập admin: admin
+Pass: Admin123@
+
+Tên đăng nhập khách: customer
+Pass: Khach123@
+
+Mã xác nhận khi đăng ký: 1234
+

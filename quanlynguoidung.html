@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Quản lý người dùng</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <style>
+      body {
+        display: flex;
+        margin: 0;
+        padding: 0;
+        background-color: #ffebee; /* đỏ nhạt */
+        font-family: 'Segoe UI', sans-serif;
+      }
+  
+      .sidebar {
+        width: 250px; /* Giữ nguyên chiều rộng của sidebar */
+        background: #b71c1c;
+        color: white;
+        padding: 20px;
+        position: fixed;
+        height: 100vh;
+        top: 0;
+        left: 0;
+      }
+  
+      .sidebar a {
+        color: white;
+        text-decoration: none;
+        display: block;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+  
+      .sidebar a:hover, .sidebar a.active {
+        background: #ff9800;
+        font-weight: bold;
+      }
+  
+      .content {
+        margin-left: 250px; /* Đẩy nội dung sang phải, bằng chiều rộng của sidebar */
+        padding: 20px;
+        width: calc(100% - 250px); /* Chiều rộng nội dung trừ đi chiều rộng của sidebar */
+      }
+
+    .content h2 {
+        text-align: center; /* Căn giữa chữ trong phần nội dung */
+        color: #b71c1c; /* Màu đỏ */
+        font-weight: bold;
+      .table {
+    margin-left: 250px; /* Thêm khoảng cách từ bên trái */
+}
+
+      .chart-container {
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        border: 2px solid #d32f2f;
+        box-shadow: 0px 0px 15px rgba(211, 47, 47, 0.2);
+        margin-top: 20px;
+      }
+  
+      h2 {
+        color: #b71c1c;
+      }
+  
+      .form-control:focus {
+        border-color: #d32f2f;
+        box-shadow: 0 0 0 0.15rem rgba(211, 47, 47, 0.25);
+      }
+  
+      .btn-danger {
+        background-color: #d32f2f;
+        border-color: #c62828;
+      }
+  
+      .btn-danger:hover {
+        background-color: #b71c1c;
+        border-color: #b71c1c;
+      }
+  
+      .table thead {
+        background-color: #b71c1c;
+        color: white;
+      }
+  
+      .btn-warning {
+        background-color: #ff9800;
+        border-color: #fb8c00;
+      }
+  
+      .btn-warning:hover {
+        background-color: #fb8c00;
+      }
+    </style>
+</head>
+<body>
+    <!-- Thanh điều hướng bên trái -->
+    <div class="sidebar">
+      <h5 class="mt-3">RẠP CHIẾU PHIM</h5>
+      <a href="tongquanadmin.html" onclick="showSection('overview')">Tổng quan</a>
+      <a href="quanlynguoidung.html" onclick="showSection('users')">Quản lý người dùng</a>
+      <a href="quanlyve.html" onclick="showSection('tickets')">Quản lý vé</a>
+      <a href="quanlylichchieuphim.html" onclick="showSection('schedule')">Quản lý lịch chiếu</a>
+      <a href="quanlynhanvien.html" onclick="showSection('employees')">Quản lý nhân viên</a>
+      <a href="thongke.html" onclick="showSection('stats')">Thống kê</a>
+      <a href="quanlyphim.html" onclick="showSection('movies')">Quản lý phim</a>
+      <a href="quanlyphongchieu_banquanly.html" onclick="showSection('rooms')">Quản lý phòng chiếu</a>
+      <a href="thongtincanhan_banquanly.html" onclick="showSection('rooms')">Thông tin cá nhân</a>
+  </div>
+
+    <div class="content">
+        <h2 class="text-center text-danger mt-3">Quản Lý Người Dùng</h2>
+        <button class="btn btn-warning mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">Thêm Người Dùng</button>
+        
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Họ Tên</th>
+                    <th>Email</th>
+                    <th>Chức Vụ</th>
+                    <th>Hành Động</th>
+                </tr>
+            </thead>
+            <tbody id="userTable">
+                <tr>
+                    <td>1</td>
+                    <td>Nguyễn Văn A</td>
+                    <td>nva@gmail.com</td>
+                    <td>Quản lý Vé</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="editUser(this)">Cập Nhật</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteUser(this)">Xóa</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal Thêm Người Dùng -->
+    <div class="modal fade" id="addUserModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm Người Dùng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="name" class="form-control mb-2" placeholder="Họ Tên">
+                    <input type="email" id="email" class="form-control mb-2" placeholder="Email">
+                    <select id="role" class="form-control mb-2">
+                        <option value="Quản lý Vé">Quản lý Vé</option>
+                        <option value="Quản lý Phim">Quản lý Phim</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-warning" onclick="addUser()">Thêm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function addUser() {
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            let role = document.getElementById("role").value;
+            
+            if (name === "" || email === "") {
+                alert("Vui lòng nhập đầy đủ thông tin!");
+                return;
+            }
+            
+            let table = document.getElementById("userTable");
+            let newId = table.rows.length + 1;
+            let row = table.insertRow();
+            row.innerHTML = `
+                <td>${newId}</td>
+                <td>${name}</td>
+                <td>${email}</td>
+                <td>${role}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="editUser(this)">Cập Nhật</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteUser(this)">Xóa</button>
+                </td>
+            `;
+            
+            let modal = new bootstrap.Modal(document.getElementById('addUserModal'));
+            modal.hide();
+            
+            document.getElementById("name").value = "";
+            document.getElementById("email").value = "";
+            document.getElementById("role").value = "Quản lý Vé";
+            alert("Thêm người dùng thành công!");
+        }
+
+        function editUser(button) {
+            let row = button.parentElement.parentElement;
+            let name = row.cells[1].innerText;
+            let email = row.cells[2].innerText;
+            let role = row.cells[3].innerText;
+            
+            let newName = prompt("Nhập tên mới:", name);
+            let newEmail = prompt("Nhập email mới:", email);
+            let newRole = prompt("Nhập chức vụ mới:", role);
+            
+            if (newName && newEmail && newRole) {
+                row.cells[1].innerText = newName;
+                row.cells[2].innerText = newEmail;
+                row.cells[3].innerText = newRole;
+                alert("Cập nhật thành công!");
+            }
+        }
+
+        function deleteUser(button) {
+            if (confirm("Bạn có chắc chắn muốn xóa?")) {
+                let row = button.parentElement.parentElement;
+                row.remove();
+                alert("Xóa thành công!");
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

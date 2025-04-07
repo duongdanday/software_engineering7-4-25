@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ - Cinema Management</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #fbe9e7;
+            flex-direction: column;
+        }
+        .content {
+            padding: 20px;
+            width: 100%;
+        }
+        .header {
+            background: #d32f2f;
+            padding: 15px;
+            text-align: right;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .main-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .banner {
+            width: 300px; /* Tăng chiều rộng banner */
+            height: 500px; /* Tăng chiều cao banner */
+            margin: 0 30px; /* Tăng khoảng cách giữa banner và slider */
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            max-width: 800px;
+        }
+        .slider {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        .slider img {
+            max-width: 100%;
+            height: 400px;
+            border-radius: 10px;
+            flex-shrink: 0;
+            width: 100%;
+        }
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 50%;
+            font-size: 18px;
+            z-index: 10;
+        }
+        .left-arrow {
+            left: 10px;
+        }
+        .right-arrow {
+            right: 10px;
+        }
+        .arrow:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        .dots {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            margin: 0 5px;
+            background-color: #ccc;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .dot.active {
+            background-color: #d32f2f;
+        }
+        .sub-header {
+            background: #f44336;
+            padding: 5px 20px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            margin: 10px auto;
+            border-radius: 5px;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="header">
+            <div style="color: white; font-weight: bold;">Rạp chiếu phim xin chào!</div>
+            <div>
+                <a href="dangnhap.html" style="color: white; text-decoration: none; margin-right: 10px;">Đăng nhập</a>
+                <span style="color: white; margin: 0 10px;">|</span>
+                <a href="dangky.html" style="color: white; text-decoration: none;">Đăng ký</a>
+            </div>
+        </div>
+    
+        <!-- Thanh bar mới: Phim đang chiếu -->
+        <div class="sub-header">
+            Phim đang chiếu
+        </div>
+        
+        <div class="main-container">
+            <!-- Banner bên trái -->
+            <img src="banner1.jpg" alt="Banner trái" class="banner">
+            
+            <!-- Slider -->
+            <div class="chart-container">
+                <button class="arrow left-arrow" onclick="prevImage()">&#8249;</button>
+                <div class="slider" id="slider">
+                    <img src="posterdiadao.jpg" alt="Hình ảnh phim">
+                    <img src="posterkayara.jpg" alt="Hình ảnh phim">
+                    <img src="posterminecraft.jpg" alt="Hình ảnh phim">
+                </div>
+                <button class="arrow right-arrow" onclick="nextImage()">&#8250;</button>
+            </div>
+
+            <!-- Banner bên phải -->
+            <img src="banner3.jpg" alt="Banner phải" class="banner">
+        </div>
+        <div class="dots" id="dots"></div>
+    </div>
+
+    <script>
+        const slider = document.getElementById("slider");
+        const dotsContainer = document.getElementById("dots");
+        const images = ["posterdiadao.jpg", "posterkayara.jpg", "posterminecraft.jpg"];
+        let currentIndex = 0;
+
+        // Tạo các dấu chấm
+        function createDots() {
+            images.forEach((_, index) => {
+                const dot = document.createElement("div");
+                dot.classList.add("dot");
+                if (index === 0) dot.classList.add("active");
+                dot.addEventListener("click", () => goToImage(index));
+                dotsContainer.appendChild(dot);
+            });
+        }
+
+        // Cập nhật dấu chấm
+        function updateDots() {
+            const dots = document.querySelectorAll(".dot");
+            dots.forEach((dot, index) => {
+                dot.classList.toggle("active", index === currentIndex);
+            });
+        }
+
+        // Hiển thị ảnh theo chỉ số
+        function showImage(index) {
+            slider.style.transition = "transform 0.5s ease-in-out";
+            slider.style.transform = `translateX(-${index * 100}%)`;
+        }
+
+        // Chuyển đến ảnh trước
+        function prevImage() {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            showImage(currentIndex);
+            updateDots();
+        }
+
+        // Chuyển đến ảnh tiếp theo
+        function nextImage() {
+            currentIndex = (currentIndex + 1) % images.length;
+            showImage(currentIndex);
+            updateDots();
+        }
+
+        // Chuyển đến ảnh theo chỉ số
+        function goToImage(index) {
+            currentIndex = index;
+            showImage(currentIndex);
+            updateDots();
+        }
+
+        // Tự động cuộn ảnh
+        function startAutoSlide() {
+            setInterval(() => {
+                nextImage();
+            }, 3000); // Chuyển ảnh sau mỗi 3 giây
+        }
+
+        // Khởi tạo
+        window.onload = () => {
+            createDots();
+            startAutoSlide();
+        };
+    </script>
+</body>
+</html>

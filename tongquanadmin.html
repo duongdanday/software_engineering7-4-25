@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống quản lý rạp chiếu phim</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #fbe9e7;
+        }
+        .sidebar {
+            width: 250px;
+            background: #b71c1c;
+            color: white;
+            padding: 15px;
+            position: fixed;
+            height: 100%;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background: #ff9800;
+            font-weight: bold;
+        }
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+            width: 100%;
+        }
+        .section {
+            display: none;
+        }
+        .chart-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .chart {
+            flex: 1;
+            max-width: 30%; /* Đảm bảo 3 biểu đồ vừa trên một hàng */
+        }
+        header-bar {
+        background-color: #b71c1c; /* Màu đỏ */
+        color: white;
+        padding: 10px 20px;
+        text-align: right; /* Căn nội dung sang bên phải */
+        font-size: 16px;
+        font-weight: bold;
+    }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h5 class="mt-3">RẠP CHIẾU PHIM</h5>
+        <a href="tongquanadmin.html" onclick="showSection('overview')">Tổng quan</a>
+        <a href="quanlynguoidung.html" onclick="showSection('users')">Quản lý người dùng</a>
+        <a href="quanlyve.html" onclick="showSection('tickets')">Quản lý vé</a>
+        <a href="quanlylichchieuphim.html" onclick="showSection('schedule')">Quản lý lịch chiếu</a>
+        <a href="quanlynhanvien.html" onclick="showSection('employees')">Quản lý nhân viên</a>
+        <a href="thongke.html" onclick="showSection('stats')">Thống kê</a>
+        <a href="quanlyphim.html" onclick="showSection('movies')">Quản lý phim</a>
+        <a href="quanlyphongchieu_banquanly.html" onclick="showSection('rooms')">Quản lý phòng chiếu</a>
+        <a href="thongtincanhan_banquanly.html" onclick="showSection('rooms')">Thông tin cá nhân</a>
+    </div>
+    
+    <div class="content">
+        
+        <div id="overview" class="section chart-container">
+            <div class="chart">
+                <canvas id="revenueChart"></canvas>
+            </div>
+            <div class="chart">
+                <canvas id="ticketsChart"></canvas>
+            </div>
+            <div class="chart">
+                <canvas id="roomsChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Các phần khác -->
+        <div id="users" class="section chart-container">Quản lý người dùng</div>
+        <div id="tickets" class="section chart-container">Quản lý vé</div>
+        <div id="schedule" class="section chart-container">Quản lý lịch chiếu</div>
+        <div id="employees" class="section chart-container">Quản lý nhân viên</div>
+        <div id="stats" class="section chart-container">Thống kê</div>
+        <div id="movies" class="section chart-container">Quản lý phim</div>
+        <div id="rooms" class="section chart-container">Quản lý phòng chiếu</div>
+    </div>
+    
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'flex';
+        }
+        showSection('overview');
+
+        // Biểu đồ doanh thu tháng
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Doanh thu bán vé', 'Doanh thu đồ ăn/uống', 'Doanh thu khác'],
+                datasets: [{
+                    data: [50000000, 20000000, 10000000], // Giá trị mẫu
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Doanh thu tháng'
+                    }
+                }
+            }
+        });
+
+        // Biểu đồ số vé đã bán
+        const ticketsCtx = document.getElementById('ticketsChart').getContext('2d');
+        new Chart(ticketsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Vé thường', 'Vé VIP', 'Vé combo'],
+                datasets: [{
+                    data: [300, 150, 50], // Giá trị mẫu
+                    backgroundColor: ['#4CAF50', '#FFC107', '#F44336']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Số vé đã bán tháng'
+                    }
+                }
+            }
+        });
+
+        // Biểu đồ số phòng đã chiếu
+        const roomsCtx = document.getElementById('roomsChart').getContext('2d');
+        new Chart(roomsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Phòng 1', 'Phòng 2', 'Phòng 3', 'Phòng 4'],
+                datasets: [{
+                    data: [10, 15, 20, 5], // Giá trị mẫu
+                    backgroundColor: ['#9C27B0', '#3F51B5', '#00BCD4', '#8BC34A']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Số phòng đã chiếu tháng'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

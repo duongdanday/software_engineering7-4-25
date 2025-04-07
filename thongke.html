@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Thống Kê</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            display: flex;
+            margin: 0;
+            padding: 0;
+            background-color: #ffebee; /* đỏ nhạt */
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #b71c1c;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            top: 0;
+            left: 0;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            background: #ff9800;
+            font-weight: bold;
+        }
+
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+            width: calc(100% - 260px);
+        }
+
+        h1, h2 {
+            color: #b71c1c;
+        }
+
+        .chart-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px; /* Khoảng cách giữa các biểu đồ */
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            flex: 1; /* Đảm bảo các biểu đồ có kích thước bằng nhau */
+            max-width: 32%; /* Giới hạn chiều rộng mỗi biểu đồ để vừa 3 cái */
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #ffffff;
+            box-shadow: 0px 0px 10px rgba(211, 47, 47, 0.1);
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Thanh điều hướng bên trái -->
+    <div class="sidebar">
+        <h5 class="mt-3">RẠP CHIẾU PHIM</h5>
+        <a href="tongquanadmin.html" onclick="showSection('overview')">Tổng quan</a>
+        <a href="quanlynguoidung.html" onclick="showSection('users')">Quản lý người dùng</a>
+        <a href="quanlyve.html" onclick="showSection('tickets')">Quản lý vé</a>
+        <a href="quanlylichchieuphim.html" onclick="showSection('schedule')">Quản lý lịch chiếu</a>
+        <a href="quanlynhanvien.html" onclick="showSection('employees')">Quản lý nhân viên</a>
+        <a href="thongke.html" onclick="showSection('stats')">Thống kê</a>
+        <a href="quanlyphim.html" onclick="showSection('movies')">Quản lý phim</a>
+        <a href="quanlyphongchieu_banquanly.html" onclick="showSection('rooms')">Quản lý phòng chiếu</a>
+        <a href="thongtincanhan_banquanly.html" onclick="showSection('rooms')">Thông tin cá nhân</a>
+    </div>
+    <!-- Nội dung trang -->
+    <div class="content">
+        <h1>Báo Cáo Thống Kê</h1>
+
+        <!-- Hàng 1: Biểu đồ theo ngày -->
+        <div class="chart-row">
+            <div class="chart-container">
+                <h2>Doanh Thu Theo Ngày</h2>
+                <canvas id="revenueByDayChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>Vé Theo Ngày</h2>
+                <canvas id="ticketsByDayChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>Số Phòng Chiếu Theo Ngày</h2>
+                <canvas id="roomsByDayChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Hàng 2: Biểu đồ theo tháng -->
+        <div class="chart-row">
+            <div class="chart-container">
+                <h2>Doanh Thu Theo Tháng</h2>
+                <canvas id="revenueByMonthChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>Vé Theo Tháng</h2>
+                <canvas id="ticketsByMonthChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>Số Phòng Chiếu Theo Tháng</h2>
+                <canvas id="roomsByMonthChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dữ liệu mẫu
+        const revenueByDayData = [500000, 700000, 800000, 600000];
+        const ticketsByDayData = [50, 70, 80, 60];
+        const roomsByDayData = [3, 4, 5, 2];
+
+        const revenueByMonthData = [15000000, 17000000, 20000000, 18000000];
+        const ticketsByMonthData = [1500, 1700, 2000, 1800];
+        const roomsByMonthData = [30, 40, 50, 20];
+
+        const labelsByDay = ['Ngày 1', 'Ngày 2', 'Ngày 3', 'Ngày 4'];
+        const labelsByMonth = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4'];
+
+        // Hàm tạo biểu đồ
+        function createPieChart(ctx, labels, data, title) {
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0'],
+                        hoverBackgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: title
+                        }
+                    }
+                }
+            });
+        }
+
+        // Tạo các biểu đồ
+        createPieChart(document.getElementById('revenueByDayChart'), labelsByDay, revenueByDayData, 'Doanh Thu Theo Ngày');
+        createPieChart(document.getElementById('ticketsByDayChart'), labelsByDay, ticketsByDayData, 'Vé Theo Ngày');
+        createPieChart(document.getElementById('roomsByDayChart'), labelsByDay, roomsByDayData, 'Số Phòng Chiếu Theo Ngày');
+
+        createPieChart(document.getElementById('revenueByMonthChart'), labelsByMonth, revenueByMonthData, 'Doanh Thu Theo Tháng');
+        createPieChart(document.getElementById('ticketsByMonthChart'), labelsByMonth, ticketsByMonthData, 'Vé Theo Tháng');
+        createPieChart(document.getElementById('roomsByMonthChart'), labelsByMonth, roomsByMonthData, 'Số Phòng Chiếu Theo Tháng');
+    </script>
+</body>
+</html>

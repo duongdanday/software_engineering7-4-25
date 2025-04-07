@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Lịch Chiếu</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #fbe9e7;
+        }
+        .sidebar {
+            width: 250px;
+            background: #b71c1c;
+            color: white;
+            padding: 15px;
+            position: fixed;
+            height: 100%;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background: #ff9800;
+            font-weight: bold;
+        }
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+            width: 100%;
+        }
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            text-align: center;
+        }
+        .chart-container h4 {
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h5 class="mt-3">RẠP CHIẾU PHIM</h5>
+        <a href="tongquanadmin.html" onclick="showSection('overview')">Tổng quan</a>
+        <a href="quanlynguoidung.html" onclick="showSection('users')">Quản lý người dùng</a>
+        <a href="quanlyve.html" onclick="showSection('tickets')">Quản lý vé</a>
+        <a href="quanlylichchieuphim.html" onclick="showSection('schedule')">Quản lý lịch chiếu</a>
+        <a href="quanlynhanvien.html" onclick="showSection('employees')">Quản lý nhân viên</a>
+        <a href="thongke.html" onclick="showSection('stats')">Thống kê</a>
+        <a href="quanlyphim.html" onclick="showSection('movies')">Quản lý phim</a>
+        <a href="quanlyphongchieu_banquanly.html" onclick="showSection('rooms')">Quản lý phòng chiếu</a>
+        <a href="thongtincanhan_banquanly.html" onclick="showSection('rooms')">Thông tin cá nhân</a>
+    </div>
+    
+    <div class="content">
+        <div class="chart-container" id="scheduleManagement">
+            <h4>Quản lý lịch chiếu</h4>
+            <button class="btn btn-primary mb-2" onclick="hienThiFormLenLich()">Lên lịch chiếu</button>
+            <div id="danhSachLichChieu" class="mt-3">
+                <!-- Danh sách lịch chiếu sẽ hiển thị ở đây -->
+            </div>
+        </div>
+
+        <!-- Form Lên Lịch -->
+        <div class="chart-container" id="formLenLich" style="display: none;">
+            <h4>Lên lịch chiếu</h4>
+            <div>
+                <div class="mb-3">
+                    <label for="ngayChieu" class="form-label">Chọn ngày chiếu:</label>
+                    <input type="date" id="ngayChieu" class="form-control">
+                    <button class="btn btn-primary mt-2" onclick="layCaChieu()">Xác nhận ngày chiếu</button>
+                </div>
+                <div class="mb-3" id="caChieuContainer" style="display: none;">
+                    <label for="caChieu" class="form-label">Chọn ca chiếu:</label>
+                    <select id="caChieu" class="form-select">
+                        <option value="" disabled selected>Chọn ca chiếu</option>
+                    </select>
+                </div>
+                <div class="mb-3" id="phongChieuContainer" style="display: none;">
+                    <label for="phongChieu" class="form-label">Chọn phòng chiếu:</label>
+                    <select id="phongChieu" class="form-select">
+                        <option value="" disabled selected>Chọn phòng chiếu</option>
+                    </select>
+                </div>
+                <div class="mb-3" id="phimContainer" style="display: none;">
+                    <label for="danhSachPhim" class="form-label">Chọn phim:</label>
+                    <select id="danhSachPhim" class="form-select">
+                        <option value="" disabled selected>Chọn phim</option>
+                    </select>
+                </div>
+                <button class="btn btn-success mb-2" id="xacNhanLichChieu" style="display: none;" onclick="xacNhanLichChieu()">Xác nhận lịch chiếu</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function hienThiFormLenLich() {
+            document.getElementById('formLenLich').style.display = 'block';
+        }
+
+        function layCaChieu() {
+            const ngay = document.getElementById('ngayChieu').value;
+            if (!ngay) {
+                alert('Vui lòng chọn ngày chiếu.');
+                return;
+            }
+            const caChieu = ['09:00', '12:00', '15:00', '18:00'];
+            const selectCaChieu = document.getElementById('caChieu');
+            selectCaChieu.innerHTML = '<option value="" disabled selected>Chọn ca chiếu</option>';
+            caChieu.forEach(ca => {
+                const option = document.createElement('option');
+                option.value = ca;
+                option.textContent = ca;
+                selectCaChieu.appendChild(option);
+            });
+            document.getElementById('caChieuContainer').style.display = 'block';
+
+            selectCaChieu.addEventListener('change', function () {
+                layPhongChieu();
+            });
+        }
+
+        function layPhongChieu() {
+            const phong = ['Phòng 1', 'Phòng 2', 'Phòng 3'];
+            const selectPhong = document.getElementById('phongChieu');
+            selectPhong.innerHTML = '<option value="" disabled selected>Chọn phòng chiếu</option>';
+            phong.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p;
+                option.textContent = p;
+                selectPhong.appendChild(option);
+            });
+            document.getElementById('phongChieuContainer').style.display = 'block';
+
+            selectPhong.addEventListener('change', function () {
+                layDanhSachPhim();
+            });
+        }
+
+        function layDanhSachPhim() {
+            const phim = ['Phim Địa đạo', 'Phim Kayara', 'Phim Minecraft'];
+            const selectPhim = document.getElementById('danhSachPhim');
+            selectPhim.innerHTML = '<option value="" disabled selected>Chọn phim</option>';
+            phim.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p;
+                option.textContent = p;
+                selectPhim.appendChild(option);
+            });
+            document.getElementById('phimContainer').style.display = 'block';
+
+            selectPhim.addEventListener('change', function () {
+                document.getElementById('xacNhanLichChieu').style.display = 'block';
+            });
+        }
+
+        function xacNhanLichChieu() {
+            const ngay = document.getElementById('ngayChieu').value;
+            const ca = document.getElementById('caChieu').value;
+            const phong = document.getElementById('phongChieu').value;
+            const phim = document.getElementById('danhSachPhim').value;
+
+            if (!ngay || !ca || !phong || !phim) {
+                alert('Vui lòng chọn đầy đủ thông tin.');
+                return;
+            }
+
+            const danhSachLichChieu = document.getElementById('danhSachLichChieu');
+            const row = document.createElement('div');
+            row.className = 'd-flex justify-content-between align-items-center p-2 border-bottom';
+            row.innerHTML = `
+                <div>
+                    <b>Ngày:</b> ${ngay} | <b>Ca:</b> ${ca} | <b>Phòng:</b> ${phong} | <b>Phim:</b> ${phim}
+                </div>
+                <div>
+                    <button class="btn btn-warning btn-sm" onclick="capNhatLichChieu(this)">Cập nhật</button>
+                    <button class="btn btn-danger btn-sm" onclick="xoaLichChieu(this)">Xóa</button>
+                </div>
+            `;
+            danhSachLichChieu.appendChild(row);
+
+            resetFormLenLich();
+            alert('Lịch chiếu đã được thêm vào danh sách.');
+        }
+
+        function capNhatLichChieu(button) {
+            const row = button.parentElement.parentElement;
+            const details = row.querySelector('div').textContent;
+
+            // Lấy thông tin hiện tại
+            const [ngay, ca, phong, phim] = details.match(/(?<=:\s)(.*?)(?=\s\|)/g);
+
+            // Đặt giá trị vào form
+            document.getElementById('ngayChieu').value = ngay;
+            document.getElementById('caChieu').innerHTML = `<option value="${ca}" selected>${ca}</option>`;
+            document.getElementById('phongChieu').innerHTML = `<option value="${phong}" selected>${phong}</option>`;
+            document.getElementById('danhSachPhim').innerHTML = `<option value="${phim}" selected>${phim}</option>`;
+
+            // Hiển thị form để cập nhật
+            document.getElementById('formLenLich').style.display = 'block';
+
+            // Xóa lịch chiếu cũ
+            row.remove();
+        }
+
+        function xoaLichChieu(button) {
+            const row = button.parentElement.parentElement;
+            row.remove();
+        }
+
+        function resetFormLenLich() {
+            document.getElementById('ngayChieu').value = '';
+            document.getElementById('caChieu').innerHTML = '<option value="" disabled selected>Chọn ca chiếu</option>';
+            document.getElementById('phongChieu').innerHTML = '<option value="" disabled selected>Chọn phòng chiếu</option>';
+            document.getElementById('danhSachPhim').innerHTML = '<option value="" disabled selected>Chọn phim</option>';
+            document.getElementById('caChieuContainer').style.display = 'none';
+            document.getElementById('phongChieuContainer').style.display = 'none';
+            document.getElementById('phimContainer').style.display = 'none';
+            document.getElementById('xacNhanLichChieu').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

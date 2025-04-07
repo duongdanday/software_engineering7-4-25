@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tổng quan</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #fbe9e7;
+        }
+        .sidebar {
+            width: 250px;
+            background: #b71c1c;
+            color: white;
+            padding: 15px;
+            position: fixed;
+            height: 100%;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background: #ff9800;
+            font-weight: bold;
+        }
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+            width: 100%;
+        }
+        .header {
+            background: #d32f2f;
+            padding: 15px;
+            text-align: right;
+            font-weight: bold;
+            color: white;
+        }
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            text-align: center;
+        }
+        .chart-container h4 {
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+        .chart-wrapper {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        canvas {
+            max-width: 200px;
+            max-height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h5 class="mt-3">RẠP CHIẾU PHIM</h5>
+        <a href="#" onclick="scrollToOverview()">Tổng quan</a>
+        <h5 class="mt-3">QUẢN LÝ TÀI KHOẢN</h5>
+        <a href="thongtincanhankhach.html">Thông tin cá nhân</a>
+        <a href="#">Lịch sử đặt phim</a>
+        <h5 class="mt-3">KHÁCH HÀNG</h5>
+        <a href="#">Xem thông tin phim</a>
+        <a href="#">Xem thông tin lịch chiếu</a>
+        <a href="Datve.html">Đặt vé</a>
+    </div>
+    <div class="content">
+        <div class="header">Xin chào, Nguyễn Văn A!</div>
+        <div class="chart-container" id="overview-section">
+            <h4>Thông tin tổng quan</h4>
+            <div class="chart-wrapper">
+                <div>
+                    <p>Số phim đã xem</p>
+                    <canvas id="moviesWatchedChart"></canvas>
+                </div>
+                <div>
+                    <p>Khách hàng thân thiết</p>
+                    <canvas id="loyaltyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function scrollToOverview() {
+            const overviewSection = document.getElementById("overview-section");
+            overviewSection.scrollIntoView({ behavior: "smooth" }); 
+        }
+
+        const moviesWatchedCtx = document.getElementById('moviesWatchedChart').getContext('2d');
+        new Chart(moviesWatchedCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Đã xem', 'Chưa xem'],
+                datasets: [{
+                    data: [50, 75],
+                    backgroundColor: ['#d32f2f', '#fbe9e7'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        const centerTextPlugin = {
+            id: 'centerText',
+            beforeDraw(chart) {
+                const { width } = chart;
+                const { height } = chart;
+                const ctx = chart.ctx;
+                ctx.save();
+                ctx.font = 'bold 16px Arial';
+                ctx.fillStyle = '#ff9800';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('VIP', width / 2, height / 2);
+                ctx.restore();
+            }
+        };
+
+        // Biểu đồ khách hàng thân thiết
+        const loyaltyCtx = document.getElementById('loyaltyChart').getContext('2d');
+        new Chart(loyaltyCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['VIP', 'Khác'],
+                datasets: [{
+                    data: [1, 0],
+                    backgroundColor: ['#ff9800', '#fbe9e7'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            },
+            plugins: [centerTextPlugin]
+        });
+    </script>
+</body>
+</html>
