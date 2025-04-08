@@ -6,6 +6,7 @@
     <title>Đặt vé</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
     <style>
         body {
             display: flex;
@@ -102,8 +103,8 @@
     
     <script>
         const movies = [
-            { id: 1, name: "Phim A", sessions: ["10:00", "14:00", "18:00"] },
-            { id: 2, name: "Phim B", sessions: ["11:00", "15:00", "19:00"] }
+            { id: 1, name: "Phim Địa đạo", sessions: ["10:00", "14:00", "18:00"] },
+            { id: 2, name: "Phim Minecraft", sessions: ["11:00", "15:00", "19:00"] }
         ];
         
         const tickets = [
@@ -140,7 +141,7 @@
             sessionButtons.innerHTML = "";
             sessions.forEach(session => {
                 const btn = document.createElement("button");
-                btn.className = "btn btn-outline-danger session-btn"; // Đổi màu nút thành tone đỏ
+                btn.className = "btn btn-outline-danger session-btn"; 
                 btn.textContent = session;
                 btn.onclick = () => selectSession(session, btn);
                 sessionButtons.appendChild(btn);
@@ -159,7 +160,7 @@
             ticketButtons.innerHTML = "";
             tickets.forEach(ticket => {
                 const btn = document.createElement("button");
-                btn.className = "btn btn-outline-danger ticket-btn"; // Đổi màu nút thành tone đỏ
+                btn.className = "btn btn-outline-danger ticket-btn"; 
                 btn.textContent = `${ticket.type} - ${ticket.price.toLocaleString()} VND`;
                 btn.onclick = () => selectTicket(ticket, btn);
                 ticketButtons.appendChild(btn);
@@ -173,59 +174,75 @@
         }
 
         function confirmBooking() {
-    const quantity = parseInt(document.getElementById("ticket-quantity").value);
-    if (!selectedMovie || !selectedSession || !selectedTicket || quantity < 1) {
-        Swal.fire('Lỗi!', 'Vui lòng chọn đầy đủ thông tin và nhập số lượng hợp lệ!', 'error');
-        return;
-    }
+            const quantity = parseInt(document.getElementById("ticket-quantity").value);
+            if (!selectedMovie || !selectedSession || !selectedTicket || quantity < 1) {
+                Swal.fire('Lỗi!', 'Vui lòng chọn đầy đủ thông tin và nhập số lượng hợp lệ!', 'error');
+                return;
+            }
 
-    const totalPrice = selectedTicket.price * quantity;
+            const totalPrice = selectedTicket.price * quantity;
 
-    Swal.fire({
-        title: 'Xác nhận đặt vé',
-        html: ` 
-            <p><b>Phim:</b> ${selectedMovie.name}</p>
-            <p><b>Suất chiếu:</b> ${selectedSession}</p>
-            <p><b>Loại vé:</b> ${selectedTicket.type}</p>
-            <p><b>Số lượng:</b> ${quantity}</p>
-            <p><b>Tổng giá:</b> ${totalPrice.toLocaleString()} VND</p>
-        `,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Xác nhận',
-        cancelButtonText: 'Hủy'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            bookings.push({ 
-                movie: selectedMovie.name, 
-                session: selectedSession, 
-                ticket: selectedTicket, 
-                quantity: quantity, 
-                totalPrice: totalPrice 
+            const bookingDetails = `
+                Phim: ${selectedMovie.name}
+                Suất chiếu: ${selectedSession}
+                Loại vé: ${selectedTicket.type}
+                Số lượng: ${quantity}
+                Tổng giá: ${totalPrice.toLocaleString()} VND
+            `;
+
+            // Tạo mã QR
+            QRCode.toDataURL(bookingDetails, { width: 200, height: 200 }, (err, url) => {
+                if (!err) {
+                    Swal.fire({
+                        title: 'Xác nhận đặt vé',
+                        html: `
+                            <p><b>Phim:</b> ${selectedMovie.name}</p>
+                            <p><b>Suất chiếu:</b> ${selectedSession}</p>
+                            <p><b>Loại vé:</b> ${selectedTicket.type}</p>
+                            <p><b>Số lượng:</b> ${quantity}</p>
+                            <p><b>Tổng giá:</b> ${totalPrice.toLocaleString()} VND</p>
+                            <div class="text-center">
+                                <img src="${url}" alt="QR Code">
+                            </div>
+                        `,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Xác nhận',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            bookings.push({ 
+                                movie: selectedMovie.name, 
+                                session: selectedSession, 
+                                ticket: selectedTicket, 
+                                quantity: quantity, 
+                                totalPrice: totalPrice 
+                            });
+                            updateBookingList();
+                            Swal.fire('Thành công!', 'Vé đã được đặt.', 'success');
+
+                            // Đặt lại giao diện về trạng thái ban đầu
+                            resetInterface();
+                        }
+                    });
+                }
             });
-            updateBookingList();
-            Swal.fire('Thành công!', 'Vé đã được đặt.', 'success');
-
-            // Đặt lại giao diện về trạng thái ban đầu
-            resetInterface();
         }
-    });
-}
 
-function resetInterface() {
-    // Đặt lại các biến
-    selectedMovie = null;
-    selectedSession = null;
-    selectedTicket = null;
+        function resetInterface() {
+            // Đặt lại các biến
+            selectedMovie = null;
+            selectedSession = null;
+            selectedTicket = null;
 
-    // Xóa các lựa chọn nút
-    document.querySelectorAll('.movie-btn').forEach(btn => btn.classList.remove('btn-danger'));
-    document.querySelectorAll('.session-btn').forEach(btn => btn.classList.remove('btn-danger'));
-    document.querySelectorAll('.ticket-btn').forEach(btn => btn.classList.remove('btn-danger'));
+            // Xóa các lựa chọn nút
+            document.querySelectorAll('.movie-btn').forEach(btn => btn.classList.remove('btn-danger'));
+            document.querySelectorAll('.session-btn').forEach(btn => btn.classList.remove('btn-danger'));
+            document.querySelectorAll('.ticket-btn').forEach(btn => btn.classList.remove('btn-danger'));
 
-    // Đặt lại số lượng vé về 1
-    document.getElementById("ticket-quantity").value = 1;
-}
+            // Đặt lại số lượng vé về 1
+            document.getElementById("ticket-quantity").value = 1;
+        }
 
         function deleteBooking(index) {
             bookings.splice(index, 1);
